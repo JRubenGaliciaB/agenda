@@ -5,21 +5,6 @@ import plotly.express as px
 # Configuración de la página
 st.set_page_config(page_title="Visualización de Agenda", layout="wide", initial_sidebar_state="expanded")
 
-# Estilos personalizados
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #1E1E1E;
-        color: #FFFFFF;
-    }
-    .block-container {
-        padding-top: 2rem;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
 # Datos simulados
 ciudadanos_data = pd.DataFrame({
@@ -32,13 +17,6 @@ eventos_data = pd.DataFrame({
     "actividad": ["Concierto de Rock", "Presentación de Ballet", "Obra de Teatro", "Exposición de Arte"],
     "municipio": ["Querétaro", "San Juan del Río", "El Marqués", "Corregidora"]
 })
-
-# Espacio superior para la foto de perfil y el nombre
-# col1, col2 = st.columns([1, 4])
-# with col1:
-#    st.image("foto_perfil.jpg", width=150)
-# with col2:
-#    st.markdown("## Nombre del Servidor Público")
 
 # KPIs principales
 st.markdown("### Indicadores Principales")

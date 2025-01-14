@@ -34,11 +34,11 @@ eventos_data = pd.DataFrame({
 })
 
 # Espacio superior para la foto de perfil y el nombre
-col1, col2 = st.columns([1, 4])
-with col1:
-    st.image("foto_perfil.jpg", width=150)
-with col2:
-    st.markdown("## Nombre del Servidor Público")
+# col1, col2 = st.columns([1, 4])
+# with col1:
+#    st.image("foto_perfil.jpg", width=150)
+# with col2:
+#    st.markdown("## Nombre del Servidor Público")
 
 # KPIs principales
 st.markdown("### Indicadores Principales")

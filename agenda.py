@@ -21,75 +21,51 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Subida del archivo por el usuario
-archivo_subido = st.file_uploader("Sube un archivo Excel", type=["xlsx"])
-if archivo_subido is not None:
-    datos = pd.read_excel(archivo_subido)
+# Datos simulados
+ciudadanos_data = pd.DataFrame({
+    "nombre": ["Juan Pérez", "María López", "Luis García", "Ana Martínez"],
+    "disciplina": ["Música", "Danza", "Teatro", "Artes Visuales"],
+    "municipio": ["Querétaro", "San Juan del Río", "El Marqués", "Corregidora"]
+})
 
-    # Espacio superior para la foto de perfil y el nombre
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        st.image("foto_perfil.jpg", width=150)
-    with col2:
-        st.markdown("## Nombre del Servidor Público")
+eventos_data = pd.DataFrame({
+    "actividad": ["Concierto de Rock", "Presentación de Ballet", "Obra de Teatro", "Exposición de Arte"],
+    "municipio": ["Querétaro", "San Juan del Río", "El Marqués", "Corregidora"]
+})
 
-    # Menú desplegable para seleccionar el rango de tiempo
-    st.sidebar.header("Filtrar por tiempo")
-    rango_tiempo = st.sidebar.selectbox(
-        "Selecciona el rango de tiempo",
-        ["Total", "Mensual", "Anual", "Periodo personalizado"],
-    )
+# Espacio superior para la foto de perfil y el nombre
+col1, col2 = st.columns([1, 4])
+with col1:
+    st.image("foto_perfil.jpg", width=150)
+with col2:
+    st.markdown("## Nombre del Servidor Público")
 
-    if rango_tiempo == "Periodo personalizado":
-        fecha_inicio = st.sidebar.date_input("Fecha de inicio")
-        fecha_fin = st.sidebar.date_input("Fecha de fin")
-        datos = datos[(datos['fecha'] >= fecha_inicio) & (datos['fecha'] <= fecha_fin)]
-    elif rango_tiempo == "Mensual":
-        mes = st.sidebar.selectbox("Selecciona el mes", datos['mes'].unique())
-        datos = datos[datos['mes'] == mes]
-    elif rango_tiempo == "Anual":
-        anio = st.sidebar.selectbox("Selecciona el año", datos['anio'].unique())
-        datos = datos[datos['anio'] == anio]
+# KPIs principales
+st.markdown("### Indicadores Principales")
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("Ciudadanos Atendidos", len(ciudadanos_data))
+    st.metric("Municipios Visitados", ciudadanos_data['municipio'].nunique())
+with col2:
+    st.metric("Actividades Realizadas", len(eventos_data))
 
-    # KPIs principales
-    st.markdown("### Indicadores Principales")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Ciudadanos Atendidos", datos['ciudadanos_atendidos'].sum())
-    with col2:
-        st.metric("Municipios Visitados", datos['municipios_visitados'].nunique())
-    with col3:
-        st.metric("Actividades con Medios", datos['actividades_medios'].sum())
+# Detalle de ciudadanos atendidos
+st.markdown("### Ciudadanos Atendidos")
+disciplina = st.selectbox("Filtrar por disciplina", ["Todas"] + list(ciudadanos_data["disciplina"].unique()))
+if disciplina != "Todas":
+    ciudadanos_data = ciudadanos_data[ciudadanos_data["disciplina"] == disciplina]
+st.dataframe(ciudadanos_data)
 
-    # Menús desplegables para disciplinas
-    st.markdown("### Detalle por Disciplina Artística o Cultural")
-    disciplina = st.selectbox("Selecciona la disciplina", datos['disciplina'].unique())
-    filtered_data = datos[datos['disciplina'] == disciplina]
-
-    # Gráficos de detalle
-    st.markdown("#### Detalle de Actividades")
-    grafico = px.bar(
-        filtered_data,
-        x="actividad",
-        y="ciudadanos_atendidos",
-        title=f"Actividades en la disciplina: {disciplina}",
-        labels={"ciudadanos_atendidos": "Ciudadanos Atendidos", "actividad": "Actividad"},
-        template="plotly_dark",
-    )
-    st.plotly_chart(grafico, use_container_width=True)
-
-    # Guardar los datos procesados en un botón de descarga
-    @st.cache_data
-    def convertir_csv(df):
-        return df.to_csv(index=False).encode('utf-8')
-
-    data_csv = convertir_csv(filtered_data)
-    st.download_button(
-        label="Descargar datos filtrados",
-        data=data_csv,
-        file_name="datos_filtrados.csv",
-        mime="text/csv",
-    )
-else:
-    st.warning("Por favor, sube un archivo Excel para continuar.")
-
+# Detalle de eventos
+st.markdown("### Eventos Realizados")
+eventos_por_municipio = eventos_data["municipio"].value_counts().reset_index()
+eventos_por_municipio.columns = ["Municipio", "Número de Eventos"]
+fig = px.bar(
+    eventos_por_municipio,
+    x="Municipio",
+    y="Número de Eventos",
+    title="Número de Eventos por Municipio",
+    labels={"Número de Eventos": "Eventos", "Municipio": "Municipio"},
+    template="plotly_dark",
+)
+st.plotly_chart(fig, use_container_width=True)
